@@ -39,7 +39,7 @@ class Core:
         for ind, c in enumerate(hsv_channels):
             for s in scales:
                 hsv_mod = hsv.copy()
-                hsv_mod[:, :, ind] = cv2.multiply(c, np.array([s]))
+                hsv_mod[:, :, ind] = cv2.multiply(c,s) # cv2.multiply is used to multiply the all pixel values of the image with the scalar value
                 bgr_scaled = cv2.cvtColor(hsv_mod, cv2.COLOR_HSV2BGR)
                 result.append(bgr_scaled)
 

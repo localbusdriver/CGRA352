@@ -25,7 +25,6 @@ class Completion:
 
     def applyFilter(self, kernel:np.array) -> cv2.Mat:
         src = self.img
-        
         output = np.zeros_like(src, dtype=np.float32) # init ouput w/ zeros
         
         # Borders
@@ -41,7 +40,7 @@ class Completion:
                 x_end_ind = x + kernel.shape[1]
                 region = padded_img[y:y_end_ind, x:x_end_ind] # get region in the padded img || [x to x_end_ind, y to y_end_ind]
                 output[y, x] = np.sum(region * kernel) 
-
+                #the convolution of the region with the kernel by element-wise multiplication and summing up the results
         return output
 
     def display(self):
