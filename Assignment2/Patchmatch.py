@@ -2,6 +2,7 @@ import cv2
 import numpy as np
 import time
 
+
 class Patchmatch:
     def __init__(
         self,
@@ -48,9 +49,7 @@ class Patchmatch:
                 self.nnf[i, j] = [random_targ_rows[i, j], random_targ_cols[i, j]]
                 self.distance[i, j] = self.calculate_distance(
                     np.array([i, j]),
-                    np.array(
-                        [random_targ_rows[i, j], random_targ_cols[i, j]], dtype=np.int32
-                    ),
+                    np.array([random_targ_rows[i, j], random_targ_cols[i, j]]),
                 )  # calculate distance (cost)
 
         print(
@@ -74,9 +73,9 @@ class Patchmatch:
         ]
         diff = patch_targ - patch_src
         num = np.sum(1 - np.int32(np.isnan(diff)))
-        dist = np.sum((np.nan_to_num(diff))**2) / num
+        dist = np.sum((np.nan_to_num(diff)) ** 2) / num
         return dist
-    
+
     def propagation(self, x: int, y: int, is_odd: bool) -> None:
         src_h = self.src_padding.shape[0] - self.patch_size + 1
         src_w = self.src_padding.shape[1] - self.patch_size + 1
@@ -112,7 +111,7 @@ class Patchmatch:
                 self.distance[x, y] = self.calculate_distance(
                     np.array([x, y]), self.nnf[x, y]
                 )
-    
+
     def random_search(self, x: int, y: int, alpha=0.5) -> None:
         i = 4
         search_h = self.targ_h * alpha**i
@@ -137,9 +136,8 @@ class Patchmatch:
             if cost < self.distance[x, y]:
                 self.distance[x, y] = cost
                 self.nnf[x, y] = targ
-            i+=1
-        
-    
+            i += 1
+
     def iterations(self):
 
         self.initialize_nnf()
@@ -157,7 +155,6 @@ class Patchmatch:
                         self.random_search(i, j)
             print(f"Iteration: {iter}")
 
-    
     def reconstruction(self):
         self.src_h, self.src_w = self.source.shape[:2]
         temp = np.zeros_like(self.source)

@@ -1,87 +1,161 @@
-import numpy as np
 import cv2
+import numpy as np
 
 
-class Reshuffler:
+def initialize_target(src: np.ndarray, mask: np.ndarray, shift=(-270, 0)):
+    target = np.zeros_like(src)
+    for y in range(src.shape[0]):
+        for x in range(src.shape[1]):
+            if mask[y, x] > 0:
+                new_x = x + shift[0]
+                if 0 <= new_x < src.shape[1]:
+                    target[y, new_x] = src[y, x]
+            else:
+                target[y, x] = src[y, x]
+    return target
+
+
+def build_gaussian_pyramid(image, levels):
+    pyramid = [image]
+    for _ in range(1, levels):
+        image = cv2.pyrDown(image)
+        pyramid.append(image)
+    return pyramid
+
+
+class Patchmatch:
     def __init__(
         self,
-        src: np.ndarray,
-        targ: np.ndarray,
-        mask: np.ndarray,
+        source: np.ndarray,
+        target: np.ndarray,
         patch_size: int = 7,
         iterations: int = 5,
-        shift=(0, 0),
     ):
-        self.src = src
-        self.targ = targ
-        self.mask = mask
+        self.src = source
+        self.targ = target
         self.patch_size = patch_size
         self.iters = iterations
-        self.shift = shift
 
         self.pad = patch_size // 2
-        self.src_h, self.src_w = src.shape[:2]
-        self.targ_h, self.targ_w = targ.shape[:2]
-
-        self.src_padded = np.pad(
-            src, [(self.pad, self.pad), (self.pad, self.pad), (0, 0)], mode="reflect"
+        self.src_padded = cv2.copyMakeBorder(
+            self.src, self.pad, self.pad, self.pad, self.pad, cv2.BORDER_REFLECT
         )
-        self.nnf = np.zeros((self.src_h, self.src_w, 2), dtype=np.int32)
-        self.distance = np.full((self.src_h, self.src_w), np.inf, dtype=np.float32)
+        self.targ_padded = cv2.copyMakeBorder(
+            self.targ, self.pad, self.pad, self.pad, self.pad, cv2.BORDER_REFLECT
+        )
 
-        self.initialize_nnf()
+        self.nnf = np.zeros(
+            (target.shape[0], target.shape[1], 2), dtype=np.int32
+        )  # Nearest neighbor field
+        self.nnd = np.full(
+            (target.shape[0], target.shape[1]), np.inf
+        )  # distances (costs)
+        self.initizalize_nnf()
 
-    def initialize_nnf(self) -> None:
-        for i in range(self.src_h):
-            for j in range(self.src_h):
-                x, y = i + self.shift[0], j + self.shift[1]
-                x = np.clip(
-                    x, 0, self.targ_h - 1
-                )  # limits the value of x to be between 0 and targ_h-1
-                y = np.clip(
-                    y, 0, self.targ_w - 1
-                )  # limits the value of y to be between 0 and targ_w-1
+    def initizalize_nnf(self) -> None:
+        h, w = self.nnf.shape[:2]
+        for y in range(h):
+            for x in range(w):
+                dy, dx = np.random.randint(h), np.random.randint(w)
+                self.nnf[y, x] = [dy, dx]
+                self.nnd[y, x] = self.calculate_dists(
+                    np.array([x, y]), np.array([dx, dy])
+                )
+        print(f"\n****Initial NNF:\n{self.nnf}\n\n****self.distance:\n{self.nnd}\n\n")
 
-                self.nnf[i, j] = [x, y]
-                self.distance[i, j] = self.calculate_distance(i, j, x, y)
-
-    def calculate_distance(self, sx, sy, tx, ty) -> float:  # costs
+    def calculate_dists(self, target: np.ndarray, source: np.ndarray) -> float:  # SSD
+        x, y = source
+        dx, dy = target
+        targ_patch = self.targ_padded[y : y + self.patch_size, x : x + self.patch_size]
         src_patch = self.src_padded[
-            sx : sx + self.patch_size, sy : sy + self.patch_size
+            dy : dy + self.patch_size, dx : dx + self.patch_size
         ]
-        targ_patch = self.targ[
-            tx - self.pad : tx + self.pad + 1, ty - self.pad : ty + self.pad + 1
-        ]
-        diff = src_patch - targ_patch
+        diff = targ_patch - src_patch
         num = np.sum(1 - np.int32(np.isnan(diff)))
-        dist = np.sum((np.nan_to_num(diff))**2) / num
+        dist = np.sum((np.nan_to_num(diff)) ** 2) / num
         return dist
 
-    def propagate(self):
-        pass
+    def propogate(self, x: int, y: int, dir: int) -> None:
+        best_dy, best_dx = self.nnf[y, x]
+        best_dist = self.nnd[y, x]
 
-    def random_search(self):
-        pass
+        nx, ny = x + dir, y  # horizontal propogation so only x is modified
+        if 0 <= nx < self.nnf.shape[1]:
+            candidate_dy, candidate_dx = self.nnf[ny, nx]
+            candidate_dx += -dir
 
-    def reconstruct_image(self):
-        reconstruction = np.zeros_like(self.src)
-        return reconstruction
+            if 0 <= candidate_dx < self.src_padded.shape[1] - self.patch_size:
+                dist = self.calculate_dists(
+                    np.array([x, y]), np.array([candidate_dx, candidate_dy])
+                )
+                if dist < best_dist:
+                    best_dx, best_dy = candidate_dx, candidate_dy
+                    best_dist = dist
+
+        nx, ny = x, y + dir  # Vertical propogation so only y is modified
+        if 0 <= ny < self.nnf.shape[0]:
+            candidate_dy, candidate_dx = self.nnf[ny, nx]
+            candidate_dy += -dir
+
+            if 0 <= candidate_dy < self.src_padded.shape[0] - self.patch_size:
+                dist = self.calculate_dists(
+                    np.array([x, y]), np.array([candidate_dx, candidate_dy])
+                )
+                if dist < best_dist:
+                    best_dy, best_dx = candidate_dy, candidate_dx
+                    best_dist = dist
+
+        self.nnf[y, x] = [best_dy, best_dx]
+        self.nnd[y, x] = best_dist
+
+    def random_search(self, x: int, y: int) -> None:
+        best_dy, best_dx = self.nnf[y, x]
+        best_dist = self.nnd[y, x]
+        radius = max(self.src_padded.shape[0], self.src_padded.shape[1])
+
+        while radius > 1:
+            min_dy = max(best_dy - radius, 0)
+            max_dy = min(best_dy + radius, self.src_padded.shape[0] - self.patch_size)
+            min_dx = max(best_dx - radius, 0)
+            max_dx = min(best_dx + radius, self.src_padded.shape[1] - self.patch_size)
+
+            candidate_dy = np.random.randint(min_dy, max_dy)
+            candidate_dx = np.random.randint(min_dx, max_dx)
+
+            dist = self.calculate_dists(
+                np.array([x, y]), np.array([candidate_dx, candidate_dy])
+            )
+            if dist < best_dist:
+                best_dx, best_dy = candidate_dx, candidate_dy
+                best_dist = dist
+            radius //= 2
+
+        self.nnf[y, x] = [best_dy, best_dx]
+        self.nnd[y, x] = best_dist
 
     def run(self):
-        for i in range(self.iters):
-            print(f"Iteration: {i}")
-            self.propagate_and_random_search()
-        return self.reconstruct_image()
+        for iter in range(self.iters):
+            print(f"\n[INFO] Iteration {iter}\n")
+            for y in range(self.targ.shape[0]):
+                for x in range(self.targ.shape[1]):
+                    if iter % 2 == 0:
+                        self.propogate(x, y, 1)
+                    else:
+                        self.propogate(x, y, -1)
+                    self.random_search(x, y)
+        return self.nnf
 
+
+def reconstruct_image(source, nnf):
+    # Implement the overlapping patch reconstruction
+    pass
 
 if __name__ == "__main__":
-    reshuffle_src = cv2.imread("assets/ReshuffleSource.jpg")
-    reshuffle_targ = cv2.imread("assets/Reshuffle.jpg")
-    reshuffle_mask = cv2.imread("assets/ReshuffleMask.jpg", 0)
-    reshuffler = Reshuffler(
-        reshuffle_src, reshuffle_targ, reshuffle_mask, shift=(-270, 0)
-    )
-    res = reshuffler.run()
-    cv2.imshow("Reshuffled Image", res)
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
+    source_img = cv2.imread("assets/ReshuffleSource.jpg", cv2.IMREAD_COLOR)
+    mask = cv2.imread("assets/ReshuffleMask.jpg", cv2.IMREAD_GRAYSCALE)
+    target_img = initialize_target(source_img, mask)
+    pm = Patchmatch(source_img, target_img)
+    nearest_neighbor_field = pm.run()
+    source_pyramid = build_gaussian_pyramid(source_img, 4)
+    target_pyramid = build_gaussian_pyramid(target_img, 4)
+    print(f"\n****Final NNF:\n{nearest_neighbor_field}\n")
