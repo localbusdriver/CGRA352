@@ -29,7 +29,7 @@ class Patchmatch:
         source: np.ndarray,
         target: np.ndarray,
         patch_size: int = 7,
-        iterations: int = 5,
+        iterations: int = 5, nnf=None
     ):
         self.src = source
         self.targ = target
@@ -44,13 +44,14 @@ class Patchmatch:
             self.targ, self.pad, self.pad, self.pad, self.pad, cv2.BORDER_REFLECT
         )
 
-        self.nnf = np.zeros(
+        self.nnf = nnf if nnf else np.zeros(
             (target.shape[0], target.shape[1], 2), dtype=np.int32
         )  # Nearest neighbor field
         self.nnd = np.full(
             (target.shape[0], target.shape[1]), np.inf
         )  # distances (costs)
-        self.initizalize_nnf()
+        if not nnf:
+            self.initizalize_nnf()
 
     def initizalize_nnf(self) -> None:
         h, w = self.nnf.shape[:2]
@@ -132,6 +133,44 @@ class Patchmatch:
 
         self.nnf[y, x] = [best_dy, best_dx]
         self.nnd[y, x] = best_dist
+        
+    def reconstruct_image(self):
+        h, w = self.src.shape[:2]
+        temp = np.zeros_like(self.src)
+        for i in range(h):
+            for j in range(w):
+                dy, dx = self.nnf[i, j]
+                temp[i, j] = self.src[dy, dx]
+        return temp
+
+    def reconstruct_images(self):
+        h, w, c = self.targ_padded.shape
+        reconstructed = np.zeros((h, w, c), dtype=np.float32)
+        patch_count = np.zeros((h, w), dtype=np.int32)
+
+        for y in range(h):
+            for x in range(w):
+                dy, dx = self.nnf[y, x]  # distance in y and x direction
+                src_y = dy + self.pad  # source y = distance y + padding (patch // 2)
+                src_x = dx + self.pad  # source x = distance x + padding (patch // 2)
+
+                # Extract patch from source image
+                src_patch = self.src_padded[ 
+                    src_y : src_y + self.patch_size,
+                    src_x : src_x + self.patch_size,
+                ]  # from source_y + patch_size && source_x + patch_size
+
+                # Add patch to reconstructed image
+                for py in range(self.patch_size-1):
+                    for px in range(self.patch_size-1):
+                        if 0 <= y + py - self.pad < h and 0 <= x + px - self.pad < w:
+                            reconstructed[y + py - self.pad, x + px - self.pad] += src_patch[py, px]
+                            patch_count[y + py - self.pad, x + px - self.pad] += 1
+
+        patch_count[patch_count == 0] = 1  # Prevent division by zero
+        reconstructed /= patch_count[:, :, np.newaxis]  # Normalize to get average
+
+        return reconstructed.astype(np.uint8)
 
     def run(self):
         for iter in range(self.iters):
@@ -146,9 +185,17 @@ class Patchmatch:
         return self.nnf
 
 
-def reconstruct_image(source, nnf):
-    # Implement the overlapping patch reconstruction
-    pass
+def upscale_nnf(nnf, scale_factor):
+    """Upscale an NNF by a given scale factor"""
+    sh, sw = scale_factor * np.array(nnf.shape[:2])
+    upscaled_nnf = np.zeros((sh, sw, 2), dtype=np.int32)
+    for y in range(upscaled_nnf.shape[0]):
+        for x in range(upscaled_nnf.shape[1]):
+            upscaled_nnf[y, x] = (
+                scale_factor * nnf[y // scale_factor, x // scale_factor]
+            )
+    return upscaled_nnf
+
 
 if __name__ == "__main__":
     source_img = cv2.imread("assets/ReshuffleSource.jpg", cv2.IMREAD_COLOR)
@@ -156,6 +203,8 @@ if __name__ == "__main__":
     target_img = initialize_target(source_img, mask)
     pm = Patchmatch(source_img, target_img)
     nearest_neighbor_field = pm.run()
-    source_pyramid = build_gaussian_pyramid(source_img, 4)
-    target_pyramid = build_gaussian_pyramid(target_img, 4)
-    print(f"\n****Final NNF:\n{nearest_neighbor_field}\n")
+    # Final reconstruction at the finest level
+    final_reconstructed = pm.reconstruct_image()
+    cv2.imshow("Final Reconstructed Image", final_reconstructed)
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
