@@ -29,7 +29,7 @@ class Patchmatch:
 
         # Initialize NNF and distance matrices
         self.nnf = np.zeros((self.src_h, self.src_w, 2), dtype=np.int32)  # nnf w/ 0s
-        self.distance = np.full(
+        self.nnd = np.full(
             (self.src_h, self.src_w), np.inf, dtype=np.float32
         )  # (costs)
 
@@ -47,14 +47,12 @@ class Patchmatch:
         for i in range(self.src_h):
             for j in range(self.src_w):
                 self.nnf[i, j] = [random_targ_rows[i, j], random_targ_cols[i, j]]
-                self.distance[i, j] = self.calculate_distance(
+                self.nnd[i, j] = self.calculate_distance(
                     np.array([i, j]),
                     np.array([random_targ_rows[i, j], random_targ_cols[i, j]]),
                 )  # calculate distance (cost)
 
-        print(
-            f"\n****Initial NNF:\n{self.nnf}\n\n****self.distance:\n{self.distance}\n\n"
-        )
+        print(f"\n****Initial NNF:\n{self.nnf}\n\n****self.nnd:\n{self.nnd}\n\n")
 
     def calculate_distance(
         self, rand_src: np.array, rand_targ: np.array
@@ -81,34 +79,34 @@ class Patchmatch:
         src_w = self.src_padding.shape[1] - self.patch_size + 1
 
         if is_odd:
-            dist_left = self.distance[max(x - 1, 0), y]
-            dist_up = self.distance[x, max(y - 1, 0)]
-            dist_curr = self.distance[x, y]
+            dist_left = self.nnd[max(x - 1, 0), y]
+            dist_up = self.nnd[x, max(y - 1, 0)]
+            dist_curr = self.nnd[x, y]
             idx = np.argmin(np.array([dist_curr, dist_left, dist_up]))
 
             if idx == 1:
                 self.nnf[x, y] = self.nnf[max(x - 1, 0), y]
-                self.distance[x, y] = self.calculate_distance(
+                self.nnd[x, y] = self.calculate_distance(
                     np.array([x, y]), self.nnf[x, y]
                 )
             if idx == 2:
                 self.nnf[x, y] = self.nnf[x, max(y - 1, 0)]
-                self.distance[x, y] = self.calculate_distance(
+                self.nnd[x, y] = self.calculate_distance(
                     np.array([x, y]), self.nnf[x, y]
                 )
         else:
-            dist_right = self.distance[min(x + 1, src_h - 1), y]
-            dist_down = self.distance[x, min(y + 1, src_w - 1)]
-            dist_curr = self.distance[x, y]
+            dist_right = self.nnd[min(x + 1, src_h - 1), y]
+            dist_down = self.nnd[x, min(y + 1, src_w - 1)]
+            dist_curr = self.nnd[x, y]
             idx = np.argmin(np.array([dist_curr, dist_right, dist_down]))
             if idx == 1:
                 self.nnf[x, y] = self.nnf[min(x + 1, src_h - 1), y]
-                self.distance[x, y] = self.calculate_distance(
+                self.nnd[x, y] = self.calculate_distance(
                     np.array([x, y]), self.nnf[x, y]
                 )
             if idx == 2:
                 self.nnf[x, y] = self.nnf[x, min(y + 1, src_w - 1)]
-                self.distance[x, y] = self.calculate_distance(
+                self.nnd[x, y] = self.calculate_distance(
                     np.array([x, y]), self.nnf[x, y]
                 )
 
@@ -133,8 +131,8 @@ class Patchmatch:
             targ = np.array([rand_targ_x, rand_targ_y])
             cost = self.calculate_distance(np.array([x, y]), targ)
 
-            if cost < self.distance[x, y]:
-                self.distance[x, y] = cost
+            if cost < self.nnd[x, y]:
+                self.nnd[x, y] = cost
                 self.nnf[x, y] = targ
             i += 1
 

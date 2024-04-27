@@ -29,7 +29,8 @@ class Patchmatch:
         source: np.ndarray,
         target: np.ndarray,
         patch_size: int = 7,
-        iterations: int = 5, nnf=None
+        iterations: int = 5,
+        nnf=None,
     ):
         self.src = source
         self.targ = target
@@ -44,8 +45,10 @@ class Patchmatch:
             self.targ, self.pad, self.pad, self.pad, self.pad, cv2.BORDER_REFLECT
         )
 
-        self.nnf = nnf if nnf else np.zeros(
-            (target.shape[0], target.shape[1], 2), dtype=np.int32
+        self.nnf = (
+            nnf
+            if nnf
+            else np.zeros((target.shape[0], target.shape[1], 2), dtype=np.int32)
         )  # Nearest neighbor field
         self.nnd = np.full(
             (target.shape[0], target.shape[1]), np.inf
@@ -133,7 +136,7 @@ class Patchmatch:
 
         self.nnf[y, x] = [best_dy, best_dx]
         self.nnd[y, x] = best_dist
-        
+
     def reconstruct_image(self):
         h, w = self.src.shape[:2]
         temp = np.zeros_like(self.src)
@@ -155,16 +158,18 @@ class Patchmatch:
                 src_x = dx + self.pad  # source x = distance x + padding (patch // 2)
 
                 # Extract patch from source image
-                src_patch = self.src_padded[ 
+                src_patch = self.src_padded[
                     src_y : src_y + self.patch_size,
                     src_x : src_x + self.patch_size,
                 ]  # from source_y + patch_size && source_x + patch_size
 
                 # Add patch to reconstructed image
-                for py in range(self.patch_size-1):
-                    for px in range(self.patch_size-1):
+                for py in range(self.patch_size - 1):
+                    for px in range(self.patch_size - 1):
                         if 0 <= y + py - self.pad < h and 0 <= x + px - self.pad < w:
-                            reconstructed[y + py - self.pad, x + px - self.pad] += src_patch[py, px]
+                            reconstructed[
+                                y + py - self.pad, x + px - self.pad
+                            ] += src_patch[py, px]
                             patch_count[y + py - self.pad, x + px - self.pad] += 1
 
         patch_count[patch_count == 0] = 1  # Prevent division by zero
@@ -173,7 +178,7 @@ class Patchmatch:
         return reconstructed.astype(np.uint8)
 
     def run(self):
-        for iter in range(self.iters):
+        for iter in range(1, self.iters+1):
             print(f"\n[INFO] Iteration {iter}\n")
             for y in range(self.targ.shape[0]):
                 for x in range(self.targ.shape[1]):
