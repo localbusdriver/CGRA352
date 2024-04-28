@@ -1,0 +1,9 @@
+To initialize the Path-Match algorithm, it will firstly pad the source image, so that the algorithm can cover the edges of the image. It will then initialize a nearest neighbor field with 0 zeros and a cost matrix with infinite. To further initialize the nearest neighbor field, it selects a random patch from the target and calculates the distance between the initial source patch and the random patch from the target image. 
+
+It will then propagate and randomly search for the best distances for a specified number of iterations. It will propagate forwards (upwards) if the iteration is even and backwards (downwards) if the iteration is odd.  
+
+Each run of the propagation will check if the given x and y locations are a good match with their neighboring pixels. If the distance between the two pixels is less than the current “best” distance, then it will replace it. 
+
+Each run of the random search function will check if a random point, within a given radius, is a good match. It will loop and continuously halve the loop to check the distance of the random point until the radius is less or equal to one. 
+
+The run function will propagate and randomly search, for x number of times until finally, the image is recreated in the reconstruction function where it finds the best points from the nearest neighbor field matrix and applies it to an empty matrix that would be initialized with zeros. The resulting image would be the final image. 

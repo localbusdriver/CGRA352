@@ -54,6 +54,12 @@ class Patchmatch:
             (target.shape[0], target.shape[1]), np.inf
         )  # distances (costs)
         self.initizalize_nnf()
+        
+    def get_nnf(self)->np.ndarray:
+        return self.nnf
+    
+    def set_nnf(self, nnf: np.ndarray)->None:
+        self.nnf = nnf
 
     def set_sourceTarget(self, source: np.ndarray, target: np.ndarray) -> None:
         self.src = source
@@ -91,11 +97,11 @@ class Patchmatch:
         best_dy, best_dx = self.nnf[y, x]
         best_dist = self.nnd[y, x]
 
-        nx, ny = x + dir, y  # horizontal propogation so only x is modified
+        nx, ny = x - dir, y  # horizontal propogation so only x is modified
         if 0 <= nx < self.nnf.shape[1]:
             # if nx between 0 and width of nnf
             candidate_dy, candidate_dx = self.nnf[ny, nx]  # candidate x and y
-            candidate_dx += -dir  # candidate x is modified b/c horizontal propogation
+            # candidate_dx += -dir  # candidate x is modified b/c horizontal propogation
 
             if (
                 0 <= candidate_dx < self.src_padded.shape[1] - self.patch_size
@@ -107,11 +113,11 @@ class Patchmatch:
                     best_dx, best_dy = candidate_dx, candidate_dy
                     best_dist = dist
 
-        nx, ny = x, y + dir  # Vertical propogation so only y is modified
+        nx, ny = x, y - dir  # Vertical propogation so only y is modified
         if 0 <= ny < self.nnf.shape[0]:
             # if ny between 0 and width of nnf
             candidate_dy, candidate_dx = self.nnf[ny, nx]
-            candidate_dy += -dir  # candidate y is modified b/c vertical propogation
+            # candidate_dy += -dir  # candidate y is modified b/c vertical propogation
 
             if 0 <= candidate_dy < self.src_padded.shape[0] - self.patch_size:
                 dist = self.calculate_dists(
@@ -250,6 +256,7 @@ def main() -> None:
         res_of_levels.append(kth_res)
 
     """ Final Reconstructed Image """
+    set_nnf = cv2.pyrUp(pm.get_nnf())
     pm.set_sourceTarget(source_img, target_img)
     final_reconstructed = pm.reconstruct_images()
 

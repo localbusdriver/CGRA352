@@ -24,10 +24,10 @@ class Patchmatch:
 
         # Initialize the source image with padding with 'reflect'
         self.src_padding = cv2.copyMakeBorder(
-            src, self.pad, self.pad, self.pad, self.pad, cv2.BORDER_REFLECT
+            src, self.pad, self.pad, self.pad, self.pad, cv2.BORDER_CONSTANT
         )
         self.targ_padding = cv2.copyMakeBorder(
-            targ, self.pad, self.pad, self.pad, self.pad, cv2.BORDER_REFLECT
+            targ, self.pad, self.pad, self.pad, self.pad, cv2.BORDER_CONSTANT
         )
 
         # Initialize NNF and distance matrices
@@ -47,8 +47,7 @@ class Patchmatch:
                     np.array([y, x]),
                     np.array([dy, dx]),
                 )  # calculate distance (cost)
-
-        print(f"\n****Initial NNF:\n{self.nnf}\n\n****self.nnd:\n{self.nnd}\n\n")
+        # print(f"\n****Initial NNF:\n{self.nnf}\n\n****self.nnd:\n{self.nnd}\n\n")
 
     def calculate_distance(
         self, rand_src: np.array, rand_targ: np.array
@@ -56,12 +55,14 @@ class Patchmatch:
 
         patch_src = self.src_padding[
             rand_src[0] : rand_src[0] + self.patch_size,
-            rand_src[1] : rand_src[1] + self.patch_size,
+            rand_src[1] : rand_src[1] + self.patch_size,:
         ]
+
         patch_targ = self.targ_padding[
             rand_targ[0] : rand_targ[0] + self.patch_size,
-            rand_targ[1] : rand_targ[1] + self.patch_size,
+            rand_targ[1] : rand_targ[1] + self.patch_size,:
         ]
+
         # dist = np.sum((patch_targ - patch_src) ** 2)
         diff = patch_targ - patch_src  # Difference between patches
         num = np.sum(1 - np.int32(np.isnan(diff)))  # Number of valid pixels
@@ -69,44 +70,30 @@ class Patchmatch:
         return dist
 
     def propagation(self, x: int, y: int, dir: int) -> None:
-        print("\tPropagation")
-        # src_h = self.src_padding.shape[0] - self.patch_size + 1
-        # src_w = self.src_padding.shape[1] - self.patch_size + 1
+        # print("\tPropagation")
 
         best_y, best_x = self.nnf[y, x]
         best_dist = self.nnd[y, x]
 
         nx, ny = x + dir, y
-        if 0 <= nx < self.nnf.shape[1]:
-            candidate_y, candidate_x = self.nnf[ny, nx]
+        if 0 <= x < self.nnf.shape[1]:
+            candidate_y, candidate_x = self.nnf[y, x]
+            # candidate_x += dir
 
-            if 0 <= candidate_x < self.src_padding.shape[1] - self.patch_size:
+            if 0 <= candidate_x < self.source.shape[1]:
                 candidate_dist = self.calculate_distance(
                     np.array([y, x]), np.array([candidate_y, candidate_x])
                 )
                 if candidate_dist < best_dist:
                     best_y, best_x = candidate_y, candidate_x
                     best_dist = candidate_dist
-            # dist_left = self.nnd[max(x - 1, 0), y]
-            # dist_up = self.nnd[x, max(y - 1, 0)]
-            # dist_curr = self.nnd[x, y]
-            # idx = np.argmin(np.array([dist_curr, dist_left, dist_up]))
 
-            # if idx == 1:
-            #     self.nnf[x, y] = self.nnf[max(x - 1, 0), y]
-            #     self.nnd[x, y] = self.calculate_distance(
-            #         np.array([x, y]), self.nnf[x, y]
-            #     )
-            # if idx == 2:
-            #     self.nnf[x, y] = self.nnf[x, max(y - 1, 0)]
-            #     self.nnd[x, y] = self.calculate_distance(
-            #         np.array([x, y]), self.nnf[x, y]
-            #     )
         nx, ny = x, y + dir
-        if 0 <= ny < self.nnf.shape[0]:
-            candidate_y, candidate_x = self.nnf[ny, nx]
+        if 0 <= y < self.nnf.shape[0]:
+            candidate_y, candidate_x = self.nnf[y, x]
+            # candidate_y += dir
 
-            if 0 <= candidate_y < self.src_padding.shape[0] - self.patch_size:
+            if 0 <= candidate_y < self.source.shape[0]:
                 candidate_dist = self.calculate_distance(
                     np.array([y, x]), np.array([candidate_y, candidate_x])
                 )
@@ -117,37 +104,20 @@ class Patchmatch:
         self.nnf[y, x] = [best_y, best_x]
         self.nnd[y, x] = best_dist
 
-        # else:
-
-        # dist_right = self.nnd[min(x + 1, src_h - 1), y]
-        # dist_down = self.nnd[x, min(y + 1, src_w - 1)]
-        # dist_curr = self.nnd[x, y]
-        # idx = np.argmin(np.array([dist_curr, dist_right, dist_down]))
-        # if idx == 1:
-        #     self.nnf[x, y] = self.nnf[min(x + 1, src_h - 1), y]
-        #     self.nnd[x, y] = self.calculate_distance(
-        #         np.array([x, y]), self.nnf[x, y]
-        #     )
-        # if idx == 2:
-        #     self.nnf[x, y] = self.nnf[x, min(y + 1, src_w - 1)]
-        #     self.nnd[x, y] = self.calculate_distance(
-        #         np.array([x, y]), self.nnf[x, y]
-        #     )
-
     def random_search(self, x: int, y: int) -> None:
-        print("\tRandom Search")
+        # print("\tRandom Search")
         best_dy, best_dx = self.nnf[y, x]
         best_dist = self.nnd[y, x]
         radius = max(
-            self.src_padding.shape[0], self.src_padding.shape[1]
+            self.source.shape[0], self.source.shape[1]
         )  # max of height and width
 
         while radius > 1:
             # Search bounds
             min_dy = max(best_dy - radius, 0)
-            max_dy = min(best_dy + radius, self.src_padding.shape[0] - self.patch_size)
+            max_dy = min(best_dy + radius, self.source.shape[0])
             min_dx = max(best_dx - radius, 0)
-            max_dx = min(best_dx + radius, self.src_padding.shape[1] - self.patch_size)
+            max_dx = min(best_dx + radius, self.source.shape[1])
 
             candidate_dy = np.random.randint(min_dy, max_dy)  # Random y
             candidate_dx = np.random.randint(min_dx, max_dx)  # Random x
@@ -166,8 +136,8 @@ class Patchmatch:
     def run(self):
         for iter in range(1, self.itr + 1):
             print(f"\n[INFO] Iteration {iter}\n")
-            for y in range(self.target.shape[0]):
-                for x in range(self.target.shape[1]):
+            for y in range(self.source.shape[0]):
+                for x in range(self.source.shape[1]):
                     # Check all pixels
                     if iter % 2 == 0:
                         self.propagation(x, y, 1)
@@ -177,24 +147,39 @@ class Patchmatch:
 
     def reconstruction(self):
         print("\n[INFO] Reconstruction")
-        self.src_h, self.src_w = self.source.shape[:2]
         temp = np.zeros_like(self.source)
-        for i in range(self.src_h):
-            for j in range(self.src_w):
-                x, y = self.nnf[i, j]
-                temp[i, j, :] = self.source[x, y, :]
-        return temp
+        for i in range(self.source.shape[0]):
+            for j in range(self.source.shape[1]):
+                y, x = self.nnf[i, j]
+                temp[i, j, :] = self.source[y, x, :]
 
+        nnf_img = np.zeros((self.nnf.shape[0], self.nnf.shape[1], 3), dtype=np.uint8)
+        rect = (0, 0, self.nnf.shape[1], self.nnf.shape[0])
+
+        for r in range(self.nnf.shape[0]):
+            for c in range(self.nnf.shape[1]):
+                x = self.nnf[r, c][0] + c
+                y = self.nnf[r, c][1] + r
+
+                # Check if the point is inside the rectangle
+            if not (0 <= x < self.nnf.shape[1] and 0 <= y < self.nnf.shape[0]):
+                # coordinate is outside the boundary, insert error of choice
+                continue
+
+            nnf_img[r, c][2] = int(x * 255.0 / self.nnf.shape[1])  # cols -> red
+            nnf_img[r, c][1] = int(y * 255.0 / self.nnf.shape[0])  # rows -> green
+            nnf_img[r, c][0] = 255 - max(nnf_img[r, c][2], nnf_img[r, c][1])  # blue
+
+        return nnf_img
 
 if "__main__" == __name__:
-
     source = cv2.imread("./assets/Source.jpg", cv2.IMREAD_COLOR)
     target = cv2.imread("./assets/Target.jpg", cv2.IMREAD_COLOR)
 
     pm = Patchmatch(source, target, patch_size=7, iterations=5)
     start = time.time()
     pm.run()
-    NNF = pm.reconstruction()
+    reconstructed = pm.reconstruction()
     print(f"Time taken: {time.time() - start}")
-    cv2.imshow("Final", NNF)
+    cv2.imshow("Final", reconstructed)
     cv2.waitKey(0)
