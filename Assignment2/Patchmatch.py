@@ -37,6 +37,7 @@ class Patchmatch:
         self.initialize_nnf()
 
     def initialize_nnf(self) -> None:
+        print("\n[INFO] Initializing NNF")
         h, w = self.nnf.shape[:2]
         for y in range(h):
             for x in range(w):
@@ -57,15 +58,14 @@ class Patchmatch:
             rand_src[0] : rand_src[0] + self.patch_size,
             rand_src[1] : rand_src[1] + self.patch_size,
         ]
-        # patch_targ = self.targ_padding[
-        #     rand_targ[0] - half_patch : rand_targ[0] + half_patch,
-        #     rand_targ[1] - half_patch : rand_targ[1] + half_patch,
-        # ]
         patch_targ = self.targ_padding[
             rand_targ[0] : rand_targ[0] + self.patch_size,
             rand_targ[1] : rand_targ[1] + self.patch_size,
         ]
-        dist = np.sum((patch_targ - patch_src) ** 2)
+        # dist = np.sum((patch_targ - patch_src) ** 2)
+        diff = patch_targ - patch_src  # Difference between patches
+        num = np.sum(1 - np.int32(np.isnan(diff)))  # Number of valid pixels
+        dist = np.sum((np.nan_to_num(diff)) ** 2) / num  # Calculate distance
         return dist
 
     def propagation(self, x: int, y: int, dir: int) -> None:
@@ -134,7 +134,7 @@ class Patchmatch:
         #         np.array([x, y]), self.nnf[x, y]
         #     )
 
-    def random_search(self, x: int, y: int, alpha=0.5) -> None:
+    def random_search(self, x: int, y: int) -> None:
         print("\tRandom Search")
         best_dy, best_dx = self.nnf[y, x]
         best_dist = self.nnd[y, x]
@@ -163,31 +163,6 @@ class Patchmatch:
         self.nnf[y, x] = [best_dy, best_dx]  # Update best match
         self.nnd[y, x] = best_dist  # Update best distance
 
-        # i = 4
-        # search_h = self.targ_h * alpha**i
-        # search_w = self.targ_w * alpha**i
-        # targ_x = self.nnf[x, y][0]
-        # targ_y = self.nnf[x, y][1]
-
-        # while search_h > 1 and search_w > 1:
-        #     search_min_r = max(targ_x - search_h, self.pad)
-        #     search_max_r = min(targ_x + search_h, self.targ_h - self.pad)
-        #     rand_targ_x = np.random.randint(search_min_r, search_max_r)
-
-        #     search_min_c = max(targ_y - search_w, self.pad)
-        #     search_max_c = min(targ_y + search_w, self.targ_w - self.pad)
-        #     rand_targ_y = np.random.randint(search_min_c, search_max_c)
-
-        #     search_h = self.targ_h * alpha**i
-        #     search_w = self.targ_w * alpha**i
-        #     targ = np.array([rand_targ_x, rand_targ_y])
-        #     cost = self.calculate_distance(np.array([x, y]), targ)
-
-        #     if cost < self.nnd[x, y]:
-        #         self.nnd[x, y] = cost
-        #         self.nnf[x, y] = targ
-        #     i += 1
-
     def run(self):
         for iter in range(1, self.itr + 1):
             print(f"\n[INFO] Iteration {iter}\n")
@@ -196,10 +171,9 @@ class Patchmatch:
                     # Check all pixels
                     if iter % 2 == 0:
                         self.propagation(x, y, 1)
-                        self.random_search(x, y)
                     else:
                         self.propagation(x, y, -1)
-                        self.random_search(x, y)
+                    self.random_search(x, y)
 
     def reconstruction(self):
         print("\n[INFO] Reconstruction")
@@ -208,7 +182,7 @@ class Patchmatch:
         for i in range(self.src_h):
             for j in range(self.src_w):
                 x, y = self.nnf[i, j]
-                temp[i, j, :] = self.target[x, y, :]
+                temp[i, j, :] = self.source[x, y, :]
         return temp
 
 

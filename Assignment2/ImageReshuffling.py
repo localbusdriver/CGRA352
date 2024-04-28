@@ -1,8 +1,10 @@
 import cv2
 import numpy as np
+import time
 
 
 def initialize_target(src: np.ndarray, mask: np.ndarray, shift=(-270, 0)):
+    print("\n[INFO] Initializing target image\n")
     target = np.zeros_like(src)
     for y in range(src.shape[0]):
         for x in range(src.shape[1]):
@@ -16,6 +18,7 @@ def initialize_target(src: np.ndarray, mask: np.ndarray, shift=(-270, 0)):
 
 
 def build_gaussian_pyramid(image: np.ndarray, k_levels=4) -> list[np.ndarray]:
+    print("\n[INFO] Building Gaussian Pyramid\n")
     pyramid = [image]
     for _ in range(0, k_levels):
         image = cv2.pyrDown(image)  # Down sample the image
@@ -57,6 +60,7 @@ class Patchmatch:
         self.targ = target
 
     def initizalize_nnf(self) -> None:
+        print("\n[INFO] Initializing NNF")
         h, w = self.nnf.shape[:2]
         for y in range(h):
             for x in range(w):
@@ -83,6 +87,7 @@ class Patchmatch:
         return dist
 
     def propogate(self, x: int, y: int, dir: int) -> None:
+        print(f"\tPropagation")
         best_dy, best_dx = self.nnf[y, x]
         best_dist = self.nnd[y, x]
 
@@ -120,6 +125,7 @@ class Patchmatch:
         self.nnd[y, x] = best_dist
 
     def random_search(self, x: int, y: int) -> None:
+        print(f"\tRandom Search")
         best_dy, best_dx = self.nnf[y, x]
         best_dist = self.nnd[y, x]
         radius = max(
@@ -150,9 +156,9 @@ class Patchmatch:
     def run(self, iterations=0):
         iters = iterations if iterations != 0 else self.iters
         for iter in range(1, iters + 1):
-            print(f"\n[INFO] Iteration {iter}\n")
-            for y in range(self.targ.shape[0]):
-                for x in range(self.targ.shape[1]):
+            print(f"\n[INFO] Iteration {iter}")
+            for y in range(self.src.shape[0]):
+                for x in range(self.src.shape[1]):
                     # Check all pixels
                     if iter % 2 == 0:  # Forward propogation
                         self.propogate(x, y, 1)
@@ -162,22 +168,24 @@ class Patchmatch:
         return self.nnf
 
     def reconstruct_image(self):
+        print("\n[INFO] Reconstructing Image")
         h, w = self.src.shape[:2]
         temp = np.zeros_like(self.src)
         for y in range(h):
             for x in range(w):
                 dy, dx = self.nnf[y, x]
-                temp[y, x] = self.src[dy, dx]
+                temp[y, x, :] = self.src[dy, dx, :]
         return temp
 
     def reconstruct_images(self):
-        h, w, c = self.targ_padded.shape
+        print("\n[INFO] Reconstructing Images")
+        h, w, c = self.src.shape
         reconstructed = np.zeros((h, w, c), dtype=np.float32)
         patch_count = np.zeros((h, w), dtype=np.int32)
 
         for y in range(h):
             for x in range(w):
-                dy, dx = self.nnf[y, x]  # distance in y and x direction
+                dy, dx = self.nnf[y, x]  # y and x neighbor
                 src_y = dy + self.pad  # source y = distance y + padding (patch // 2)
                 src_x = dx + self.pad  # source x = distance x + padding (patch // 2)
 
@@ -235,6 +243,7 @@ def main() -> None:
         target = targ_pyramid[k]
 
         pm.set_sourceTarget(source, target)
+        
         pm.run()
 
         kth_res = pm.reconstruct_image()
