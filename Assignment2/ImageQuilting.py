@@ -33,9 +33,6 @@ class ImageQuilting:
         min_ssd = np.inf
         best_patch = None
         rows, cols = self.image.shape[:2]
-        # window_shape = (self.patch_size, self.patch_size, self.image.shape[2])
-        # stride = self.image.strides  
-        # number of bytes to jump-over in the memory to get from one item to the next item along each direction/dimension of the array.
         
         for i in range(0, rows-self.patch_size): # vertical
             for j in range(0, cols - self.patch_size): # horizontal
