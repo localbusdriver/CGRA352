@@ -75,10 +75,10 @@ class Patchmatch:
         best_y, best_x = self.nnf[y, x]
         best_dist = self.nnd[y, x]
 
-        nx, ny = x + dir, y
-        if 0 <= nx < self.nnf.shape[1]:
-            candidate_y, candidate_x = self.nnf[ny, nx]
-            # candidate_x += dir
+        # nx, ny = x + dir, y
+        if 0 <= x < self.nnf.shape[1]:
+            candidate_y, candidate_x = self.nnf[y, x]
+            candidate_x += dir
 
             if 0 <= candidate_x < self.target.shape[1]:
                 candidate_dist = self.calculate_distance(
@@ -88,10 +88,10 @@ class Patchmatch:
                     best_y, best_x = candidate_y, candidate_x
                     best_dist = candidate_dist
 
-        nx, ny = x, y + dir
-        if 0 <= ny < self.nnf.shape[0]:
-            candidate_y, candidate_x = self.nnf[ny, nx]
-            # candidate_y += dir
+        # nx, ny = x, y + dir
+        if 0 <= y < self.nnf.shape[0]:
+            candidate_y, candidate_x = self.nnf[y, x]
+            candidate_y += dir
 
             if 0 <= candidate_y < self.target.shape[0]:
                 candidate_dist = self.calculate_distance(
