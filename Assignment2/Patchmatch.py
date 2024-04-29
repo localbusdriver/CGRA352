@@ -50,7 +50,6 @@ class Patchmatch:
         # print(f"\n****Initial NNF:\n{self.nnf}\n\n****self.nnd:\n{self.nnd}\n\n")
 
     def calculate_distance(self, src: np.array, targ: np.array) -> float:  # ssd
-        # p = self.patch_size // 2
         src_y, src_x = src[0], src[1]
         patch_src = self.src_padding[
             src_y : src_y + self.patch_size,
@@ -75,9 +74,9 @@ class Patchmatch:
         best_y, best_x = self.nnf[y, x]
         best_dist = self.nnd[y, x]
 
-        # nx, ny = x + dir, y
-        if 0 <= x < self.nnf.shape[1]:
-            candidate_y, candidate_x = self.nnf[y, x]
+        nx, ny = x + dir, y
+        if 0 <= nx < self.nnf.shape[1]:
+            candidate_y, candidate_x = self.nnf[ny, nx]
             candidate_x += dir
 
             if 0 <= candidate_x < self.target.shape[1]:
@@ -88,9 +87,9 @@ class Patchmatch:
                     best_y, best_x = candidate_y, candidate_x
                     best_dist = candidate_dist
 
-        # nx, ny = x, y + dir
-        if 0 <= y < self.nnf.shape[0]:
-            candidate_y, candidate_x = self.nnf[y, x]
+        nx, ny = x, y + dir
+        if 0 <= ny < self.nnf.shape[0]:
+            candidate_y, candidate_x = self.nnf[ny, nx]
             candidate_y += dir
 
             if 0 <= candidate_y < self.target.shape[0]:
