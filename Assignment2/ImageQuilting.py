@@ -96,7 +96,6 @@ class ImageQuilting:
                     blended_image[i, j + w] = (
                         alpha * curr[i, j + w] + (1 - alpha) * nxt[i, j + w]
                     )
-
         return blended_image
 
     def synthesize_texture(self) -> np.ndarray:
@@ -112,7 +111,6 @@ class ImageQuilting:
             texture = np.hstack((texture[:, : -self.overlap], blended_area))
             curr_patch = nxt_patch
             i += 1
-
         return texture[: self.patch_size, : self.target_width]
 
 
