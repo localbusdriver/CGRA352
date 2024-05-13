@@ -1,3 +1,0 @@
-/Users/jamesla/Desktop/CGRA352/Assignment3/build/CMakeFiles/MyProject.dir
-/Users/jamesla/Desktop/CGRA352/Assignment3/build/CMakeFiles/edit_cache.dir
-/Users/jamesla/Desktop/CGRA352/Assignment3/build/CMakeFiles/rebuild_cache.dir

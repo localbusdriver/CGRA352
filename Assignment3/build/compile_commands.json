@@ -1,8 +1,0 @@
-[
-{
-  "directory": "/Users/jamesla/Desktop/CGRA352/Assignment3/build",
-  "command": "/opt/homebrew/bin/aarch64-apple-darwin22-g++-13  -isystem /opt/homebrew/Cellar/opencv/4.9.0_8/include/opencv4 -g -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX13.3.sdk -o CMakeFiles/MyProject.dir/Assignment3.cpp.o -c /Users/jamesla/Desktop/CGRA352/Assignment3/Assignment3.cpp",
-  "file": "/Users/jamesla/Desktop/CGRA352/Assignment3/Assignment3.cpp",
-  "output": "CMakeFiles/MyProject.dir/Assignment3.cpp.o"
-}
-]
