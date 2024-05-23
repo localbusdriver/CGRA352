@@ -11,6 +11,7 @@ namespace fem
 {
     FeatureExtractionAndMatching::FeatureExtractionAndMatching(std::string inputDir)
     { // Initialize SIFT, keypoints, descriptors, and matches && Find best matches
+    std::cout << "\n[INFO] Initializing Feature Extraction and Matching..." << std::endl;
         std::cout << "[INFO] Loading Images..." << std::endl;
 
         frame39 = cv::imread(inputDir + "/Frame039.jpg");

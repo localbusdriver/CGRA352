@@ -8,6 +8,7 @@ namespace vs
 {
     VideoStabilizer::VideoStabilizer(std::string inputDir)
     {
+        std::cout << "\n[INFO] Initializing Video Stabilizer..." << std::endl;
         loadImages(inputDir);
     }
 
@@ -136,7 +137,7 @@ namespace vs
         for (size_t i = 0; i < stabilizedImages.size(); i++)
         {
             cv::imshow("Stabilized Image", stabilizedImages[i]);
-            cv::waitKey(100); // Display each frame for 50 ms
+            cv::waitKey(100); // Display each frame for 100 ms
             cv::imwrite("./COMPLETION/stabilized_frame" + std::to_string(i) + ".png", stabilizedImages[i]);
         }
     }

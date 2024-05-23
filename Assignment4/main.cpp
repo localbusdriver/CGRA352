@@ -66,7 +66,7 @@ int main(int argc, char **argv)
         for (size_t i = 0; i < fn.size(); i++)
         {
             cv::Mat image = cv::imread(fn[i]);
-            cv::imshow(std::to_string(i), image);
+            cv::imshow("stabilized_image", image);
             cv::waitKey(speed);
         }
     }
@@ -78,8 +78,8 @@ int main(int argc, char **argv)
     else
     {
         printUsage(argv);
-        // fem::FeatureExtractionAndMatching CORE(inputDir=inputDir);
-        // CORE.run();
+        fem::FeatureExtractionAndMatching CORE(inputDir=inputDir);
+        CORE.run();
         vs::VideoStabilizer VS(inputDir = inputDir); // COMPLETION
         VS.run();
     }
