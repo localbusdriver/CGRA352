@@ -153,6 +153,54 @@ FeatureExtractionAndMatching.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/a4.dir/build.make CMakeFiles/a4.dir/FeatureExtractionAndMatching.cpp.s
 .PHONY : FeatureExtractionAndMatching.cpp.s
 
+VideoStabilizer.o: VideoStabilizer.cpp.o
+.PHONY : VideoStabilizer.o
+
+# target to build an object file
+VideoStabilizer.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/a4.dir/build.make CMakeFiles/a4.dir/VideoStabilizer.cpp.o
+.PHONY : VideoStabilizer.cpp.o
+
+VideoStabilizer.i: VideoStabilizer.cpp.i
+.PHONY : VideoStabilizer.i
+
+# target to preprocess a source file
+VideoStabilizer.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/a4.dir/build.make CMakeFiles/a4.dir/VideoStabilizer.cpp.i
+.PHONY : VideoStabilizer.cpp.i
+
+VideoStabilizer.s: VideoStabilizer.cpp.s
+.PHONY : VideoStabilizer.s
+
+# target to generate assembly for a file
+VideoStabilizer.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/a4.dir/build.make CMakeFiles/a4.dir/VideoStabilizer.cpp.s
+.PHONY : VideoStabilizer.cpp.s
+
+main.o: main.cpp.o
+.PHONY : main.o
+
+# target to build an object file
+main.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/a4.dir/build.make CMakeFiles/a4.dir/main.cpp.o
+.PHONY : main.cpp.o
+
+main.i: main.cpp.i
+.PHONY : main.i
+
+# target to preprocess a source file
+main.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/a4.dir/build.make CMakeFiles/a4.dir/main.cpp.i
+.PHONY : main.cpp.i
+
+main.s: main.cpp.s
+.PHONY : main.s
+
+# target to generate assembly for a file
+main.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/a4.dir/build.make CMakeFiles/a4.dir/main.cpp.s
+.PHONY : main.cpp.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -165,6 +213,12 @@ help:
 	@echo "... FeatureExtractionAndMatching.o"
 	@echo "... FeatureExtractionAndMatching.i"
 	@echo "... FeatureExtractionAndMatching.s"
+	@echo "... VideoStabilizer.o"
+	@echo "... VideoStabilizer.i"
+	@echo "... VideoStabilizer.s"
+	@echo "... main.o"
+	@echo "... main.i"
+	@echo "... main.s"
 .PHONY : help
 
 

@@ -69,10 +69,24 @@ include CMakeFiles/a4.dir/progress.make
 # Include the compile flags for this target's objects.
 include CMakeFiles/a4.dir/flags.make
 
+CMakeFiles/a4.dir/main.cpp.o: CMakeFiles/a4.dir/flags.make
+CMakeFiles/a4.dir/main.cpp.o: /Users/jamesla/Desktop/CGRA352/Assignment4/main.cpp
+CMakeFiles/a4.dir/main.cpp.o: CMakeFiles/a4.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/jamesla/Desktop/CGRA352/Assignment4/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/a4.dir/main.cpp.o"
+	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/a4.dir/main.cpp.o -MF CMakeFiles/a4.dir/main.cpp.o.d -o CMakeFiles/a4.dir/main.cpp.o -c /Users/jamesla/Desktop/CGRA352/Assignment4/main.cpp
+
+CMakeFiles/a4.dir/main.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/a4.dir/main.cpp.i"
+	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /Users/jamesla/Desktop/CGRA352/Assignment4/main.cpp > CMakeFiles/a4.dir/main.cpp.i
+
+CMakeFiles/a4.dir/main.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/a4.dir/main.cpp.s"
+	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/jamesla/Desktop/CGRA352/Assignment4/main.cpp -o CMakeFiles/a4.dir/main.cpp.s
+
 CMakeFiles/a4.dir/FeatureExtractionAndMatching.cpp.o: CMakeFiles/a4.dir/flags.make
 CMakeFiles/a4.dir/FeatureExtractionAndMatching.cpp.o: /Users/jamesla/Desktop/CGRA352/Assignment4/FeatureExtractionAndMatching.cpp
 CMakeFiles/a4.dir/FeatureExtractionAndMatching.cpp.o: CMakeFiles/a4.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/jamesla/Desktop/CGRA352/Assignment4/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/a4.dir/FeatureExtractionAndMatching.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/jamesla/Desktop/CGRA352/Assignment4/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/a4.dir/FeatureExtractionAndMatching.cpp.o"
 	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/a4.dir/FeatureExtractionAndMatching.cpp.o -MF CMakeFiles/a4.dir/FeatureExtractionAndMatching.cpp.o.d -o CMakeFiles/a4.dir/FeatureExtractionAndMatching.cpp.o -c /Users/jamesla/Desktop/CGRA352/Assignment4/FeatureExtractionAndMatching.cpp
 
 CMakeFiles/a4.dir/FeatureExtractionAndMatching.cpp.i: cmake_force
@@ -83,14 +97,32 @@ CMakeFiles/a4.dir/FeatureExtractionAndMatching.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/a4.dir/FeatureExtractionAndMatching.cpp.s"
 	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/jamesla/Desktop/CGRA352/Assignment4/FeatureExtractionAndMatching.cpp -o CMakeFiles/a4.dir/FeatureExtractionAndMatching.cpp.s
 
+CMakeFiles/a4.dir/VideoStabilizer.cpp.o: CMakeFiles/a4.dir/flags.make
+CMakeFiles/a4.dir/VideoStabilizer.cpp.o: /Users/jamesla/Desktop/CGRA352/Assignment4/VideoStabilizer.cpp
+CMakeFiles/a4.dir/VideoStabilizer.cpp.o: CMakeFiles/a4.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/jamesla/Desktop/CGRA352/Assignment4/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/a4.dir/VideoStabilizer.cpp.o"
+	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/a4.dir/VideoStabilizer.cpp.o -MF CMakeFiles/a4.dir/VideoStabilizer.cpp.o.d -o CMakeFiles/a4.dir/VideoStabilizer.cpp.o -c /Users/jamesla/Desktop/CGRA352/Assignment4/VideoStabilizer.cpp
+
+CMakeFiles/a4.dir/VideoStabilizer.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/a4.dir/VideoStabilizer.cpp.i"
+	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /Users/jamesla/Desktop/CGRA352/Assignment4/VideoStabilizer.cpp > CMakeFiles/a4.dir/VideoStabilizer.cpp.i
+
+CMakeFiles/a4.dir/VideoStabilizer.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/a4.dir/VideoStabilizer.cpp.s"
+	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/jamesla/Desktop/CGRA352/Assignment4/VideoStabilizer.cpp -o CMakeFiles/a4.dir/VideoStabilizer.cpp.s
+
 # Object files for target a4
 a4_OBJECTS = \
-"CMakeFiles/a4.dir/FeatureExtractionAndMatching.cpp.o"
+"CMakeFiles/a4.dir/main.cpp.o" \
+"CMakeFiles/a4.dir/FeatureExtractionAndMatching.cpp.o" \
+"CMakeFiles/a4.dir/VideoStabilizer.cpp.o"
 
 # External object files for target a4
 a4_EXTERNAL_OBJECTS =
 
+a4: CMakeFiles/a4.dir/main.cpp.o
 a4: CMakeFiles/a4.dir/FeatureExtractionAndMatching.cpp.o
+a4: CMakeFiles/a4.dir/VideoStabilizer.cpp.o
 a4: CMakeFiles/a4.dir/build.make
 a4: /opt/homebrew/lib/libopencv_gapi.4.9.0.dylib
 a4: /opt/homebrew/lib/libopencv_stitching.4.9.0.dylib
@@ -148,7 +180,7 @@ a4: /opt/homebrew/lib/libopencv_photo.4.9.0.dylib
 a4: /opt/homebrew/lib/libopencv_imgproc.4.9.0.dylib
 a4: /opt/homebrew/lib/libopencv_core.4.9.0.dylib
 a4: CMakeFiles/a4.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=/Users/jamesla/Desktop/CGRA352/Assignment4/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Linking CXX executable a4"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=/Users/jamesla/Desktop/CGRA352/Assignment4/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Linking CXX executable a4"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/a4.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.

@@ -9,6 +9,8 @@ set(CMAKE_DEPENDS_LANGUAGES
 # The set of dependency files which are needed:
 set(CMAKE_DEPENDS_DEPENDENCY_FILES
   "/Users/jamesla/Desktop/CGRA352/Assignment4/FeatureExtractionAndMatching.cpp" "CMakeFiles/a4.dir/FeatureExtractionAndMatching.cpp.o" "gcc" "CMakeFiles/a4.dir/FeatureExtractionAndMatching.cpp.o.d"
+  "/Users/jamesla/Desktop/CGRA352/Assignment4/VideoStabilizer.cpp" "CMakeFiles/a4.dir/VideoStabilizer.cpp.o" "gcc" "CMakeFiles/a4.dir/VideoStabilizer.cpp.o.d"
+  "/Users/jamesla/Desktop/CGRA352/Assignment4/main.cpp" "CMakeFiles/a4.dir/main.cpp.o" "gcc" "CMakeFiles/a4.dir/main.cpp.o.d"
   )
 
 # Targets to which this target links which contain Fortran sources.

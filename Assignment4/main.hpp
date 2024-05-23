@@ -13,16 +13,17 @@ namespace fem
     class FeatureExtractionAndMatching
     {
     public:
-        FeatureExtractionAndMatching();
+        FeatureExtractionAndMatching(std::string inputDir);
         void run();
 
     private:
         void SIFT();
         void match();
         void RANSAC();
-        void show();
+        cv::Mat warpImage();
         cv::Mat drawPart1();
         cv::Mat drawPart2();
+        void show();
 
         // Images
         cv::Mat frame39, frame41;
@@ -38,6 +39,31 @@ namespace fem
         int bestInliers = 0;
         const int iterations = 1000;
         const float reprojectionThreshold = 3.0f; // Distance in pixels to consider an inlier
+    };
+}
+
+namespace vs
+{
+    class VideoStabilizer
+    {
+    public:
+        VideoStabilizer(std::string inputDir);
+        void run();
+
+    private:
+        void loadImages(std::string inputDir);
+        void findHomography();
+        std::vector<double> computeGaussianWeights();
+        void smoothHomographies();
+        void stabilize();
+        void saveShow();
+
+        const int kernelSize = 5;
+        const double sigma = 1.0;
+
+        std::vector<cv::Mat> images;
+        std::vector<cv::Mat> stabilizedImages;
+        std::vector<cv::Mat> homographies;
     };
 }
 #endif // MAIN_H

@@ -9,11 +9,12 @@
 
 namespace fem
 {
-    FeatureExtractionAndMatching::FeatureExtractionAndMatching()
+    FeatureExtractionAndMatching::FeatureExtractionAndMatching(std::string inputDir)
     { // Initialize SIFT, keypoints, descriptors, and matches && Find best matches
         std::cout << "[INFO] Loading Images..." << std::endl;
-        frame39 = cv::imread("../inp/Frame039.jpg");
-        frame41 = cv::imread("../inp/Frame041.jpg");
+
+        frame39 = cv::imread(inputDir + "/Frame039.jpg");
+        frame41 = cv::imread(inputDir + "/Frame041.jpg");
 
         if (frame39.empty() || frame41.empty())
         {
@@ -100,6 +101,21 @@ namespace fem
         }
     }
 
+    cv::Mat FeatureExtractionAndMatching::warpImage()
+    {
+        cv::Mat warpedImage;
+        cv::warpPerspective(frame39, warpedImage, bestHomography, cv::Size(frame41.cols, frame41.rows));  // Warp image
+
+        cv::Mat outputImage = frame41.clone();
+        // For each pixel in warped image, copy to output image if not black (bgr(0,0,0))
+        warpedImage.forEach<cv::Vec3b>([&](cv::Vec3b &pix, const int *ind)
+                                       {
+                                        if (pix != cv::Vec3b(0,0,0)) 
+                                            outputImage.at<cv::Vec3b>(ind[0], ind[1]) = pix; });  // copy pixel if not black
+
+        return outputImage;
+    }
+
     /**
      * Draw the matches between the two images for part 1;
      * SIFT feature extraction and matching.
@@ -164,8 +180,10 @@ namespace fem
         std::cout << "[INFO] Displaying images" << std::endl;
         cv::Mat part1 = drawPart1();
         cv::Mat part2 = drawPart2();
-        cv::imshow("matches.jpg", part1);
-        cv::imshow("inliers_outliers.jpg", part2);
+        cv::Mat part3 = warpImage();
+        cv::imshow("matches | CORE part 1", part1);
+        cv::imshow("inliers_outliers | CORE part 2", part2);
+        cv::imshow("warped | CORE part 3", part3);
         cv::waitKey(0);
         cv::destroyAllWindows();
     }
@@ -179,11 +197,3 @@ namespace fem
         show();
     }
 };
-// CORE Part 1/2
-int main()
-{
-    srand((unsigned)time(0)); // Seed for random number generation
-    fem::FeatureExtractionAndMatching CORE;
-    CORE.run();
-    return 0;
-}

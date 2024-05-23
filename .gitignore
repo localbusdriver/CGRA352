@@ -5,6 +5,8 @@
 *.vscode
 */dist
 */.pytest
-*/inp/*
-*/inp
+*/input/*
+*/input
 */results
+*/build/COMPLETION
+*/COMPLETION
