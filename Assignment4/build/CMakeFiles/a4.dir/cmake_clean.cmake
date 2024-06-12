@@ -1,4 +1,6 @@
 file(REMOVE_RECURSE
+  "CMakeFiles/a4.dir/CroppingWindow.cpp.o"
+  "CMakeFiles/a4.dir/CroppingWindow.cpp.o.d"
   "CMakeFiles/a4.dir/FeatureExtractionAndMatching.cpp.o"
   "CMakeFiles/a4.dir/FeatureExtractionAndMatching.cpp.o.d"
   "CMakeFiles/a4.dir/VideoStabilizer.cpp.o"

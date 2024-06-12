@@ -129,6 +129,30 @@ a4/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/a4.dir/build.make CMakeFiles/a4.dir/build
 .PHONY : a4/fast
 
+CroppingWindow.o: CroppingWindow.cpp.o
+.PHONY : CroppingWindow.o
+
+# target to build an object file
+CroppingWindow.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/a4.dir/build.make CMakeFiles/a4.dir/CroppingWindow.cpp.o
+.PHONY : CroppingWindow.cpp.o
+
+CroppingWindow.i: CroppingWindow.cpp.i
+.PHONY : CroppingWindow.i
+
+# target to preprocess a source file
+CroppingWindow.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/a4.dir/build.make CMakeFiles/a4.dir/CroppingWindow.cpp.i
+.PHONY : CroppingWindow.cpp.i
+
+CroppingWindow.s: CroppingWindow.cpp.s
+.PHONY : CroppingWindow.s
+
+# target to generate assembly for a file
+CroppingWindow.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/a4.dir/build.make CMakeFiles/a4.dir/CroppingWindow.cpp.s
+.PHONY : CroppingWindow.cpp.s
+
 FeatureExtractionAndMatching.o: FeatureExtractionAndMatching.cpp.o
 .PHONY : FeatureExtractionAndMatching.o
 
@@ -210,6 +234,9 @@ help:
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
 	@echo "... a4"
+	@echo "... CroppingWindow.o"
+	@echo "... CroppingWindow.i"
+	@echo "... CroppingWindow.s"
 	@echo "... FeatureExtractionAndMatching.o"
 	@echo "... FeatureExtractionAndMatching.i"
 	@echo "... FeatureExtractionAndMatching.s"

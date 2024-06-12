@@ -53,16 +53,49 @@ namespace vs
     private:
         void loadImages(std::string inputDir);
         void findHomography();
+        void computeCumulativeHomographies();
         std::vector<double> computeGaussianWeights();
         void smoothHomographies();
+        void computeStabilizationTransforms();
         void stabilize();
         void saveShow();
+        void saveHomographies();
+        void createDir();
 
         const int kernelSize = 5;
         const double sigma = 1.0;
 
         std::vector<cv::Mat> images;
+        std::vector<cv::Mat> homographies;
+        std::vector<cv::Mat> cumulativeHomographies;
+        std::vector<cv::Mat> smoothedHomographies;
+        std::vector<cv::Mat> stabilizationTransforms;
         std::vector<cv::Mat> stabilizedImages;
+    };
+}
+
+namespace cw
+{
+    class CroppingWindow
+    {
+    public:
+        CroppingWindow();
+        void run();
+
+    private:
+        void transformMask();
+        // cv::Mat transformMask(cv::Mat& mask, const cv::Mat& transformation);
+        cv::Mat generateCombinedMask();
+        cv::Rect findLargestInscribedSquare(const cv::Mat& mask);
+        cv::Rect findLargestInscribedRectangle(const cv::Mat& combinedMask);
+        cv::Rect adjustToAspectRatio(cv::Rect largetSquare);
+        void cropAndSaveFrames(const cv::Rect& cropRect);
+        void loadImages();
+        void createDir();
+        void show();
+
+        std::vector<cv::Mat> masks;
+        std::vector<cv::Mat> frames;
         std::vector<cv::Mat> homographies;
     };
 }

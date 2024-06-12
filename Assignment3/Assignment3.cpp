@@ -63,13 +63,14 @@ cv::Vec3b accessLightFieldPixel(const std::vector<cv::Mat> &lightField, int row,
 }
 
 // CORE Part 2
-// Check if a given UV coordinate is within the aperture radius with epsilon
+// Check if a given UV coordinate is within the aperture radius with epsilon.
+// Epsilon allows for slight floating point inaccuracies.
 bool isWithinAperture(float u, float v, float centerU, float centerV, float radius)
 {
   const float EPSILON = 0.0001f;
-  float dist = sqrt((u - centerU) * (u - centerU) + (v - centerV) * (v - centerV)); // Calculate distance
-  std::cout << "Distance: " << dist << " | Radius+EPSILON: " << radius + EPSILON << std::endl;
-  return dist <= radius + EPSILON; // Check if distance is less than radius + epsilon
+  float dist = sqrt((u - centerU) * (u - centerU) + (v - centerV) * (v - centerV)); // Calculate Euclidean distance
+  // std::cout << "Distance: " << dist << " | Radius+EPSILON: " << radius + EPSILON << std::endl;
+  return dist <= radius + EPSILON; // Check if distance is less than radius + epsilon (to account for floating point inaccuracies)
 }
 // Function to construct UV-image for given ST coordinates with specific aperture
 cv::Mat constructUVImage(const std::vector<cv::Mat> &lightField, int t, int s, float centerU, float centerV, float radius)
@@ -92,6 +93,7 @@ cv::Mat constructUVImage(const std::vector<cv::Mat> &lightField, int t, int s, f
 
 void generateSTArray(std::vector<cv::Mat> lf_imgs)
 {
+  // INITIALIZE
   int startTime = time(NULL);
   int startS = 770, endS = 870;
   int startT = 205, endT = 305;
@@ -101,7 +103,7 @@ void generateSTArray(std::vector<cv::Mat> lf_imgs)
 
   float centerU = -776.880371;
   float centerV = 533.057190;
-  float radius = 75;
+  float radius = 40;
 
   for (int t = startT; t < endT; ++t)
   {
