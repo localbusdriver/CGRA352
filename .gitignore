@@ -11,3 +11,7 @@
 */build/COMPLETION
 */COMPLETION
 */build/CHALLENGE
+*/.vs
+*/out
+*/CMakeFiles
+*/screenshots

@@ -44,8 +44,8 @@ class Patchmatch:
                 dy, dx = np.random.randint(h), np.random.randint(w)
                 self.nnf[y, x] = [dy, dx]
                 self.nnd[y, x] = self.calculate_distance(
-                    np.array([y, x]),
                     np.array([dy, dx]),
+                    np.array([y, x]),
                 )  # calculate distance (cost)
         # print(f"\n****Initial NNF:\n{self.nnf}\n\n****self.nnd:\n{self.nnd}\n\n")
 
@@ -74,7 +74,7 @@ class Patchmatch:
         best_y, best_x = self.nnf[y, x]
         best_dist = self.nnd[y, x]
 
-        nx, ny = x - dir, y
+        nx, ny = x + dir, y
         if 0 <= nx < self.nnf.shape[1]:
             candidate_y, candidate_x = self.nnf[ny, nx]
             # candidate_x += dir
@@ -87,7 +87,7 @@ class Patchmatch:
                     best_y, best_x = candidate_y, candidate_x
                     best_dist = candidate_dist
 
-        nx, ny = x, y - dir
+        nx, ny = x, y + dir
         if 0 <= ny < self.nnf.shape[0]:
             candidate_y, candidate_x = self.nnf[ny, nx]
             # candidate_y += dir
@@ -144,9 +144,9 @@ class Patchmatch:
                         self.propagation(x, y, 1)
                     self.random_search(x, y)
             res, recon = self.reconstruction()
-            cv2.imshow(f"Result + {iter}", res)
-            cv2.imshow(f"Reconstructed Image + {iter}", recon)
-            cv2.waitKey(0)
+            # cv2.imshow(f"Result + {iter}", res)
+            # cv2.imshow(f"Reconstructed Image + {iter}", recon)
+            # cv2.waitKey(0)
 
     def reconstruction(self):
         print("\n[INFO] Reconstruction")
@@ -154,19 +154,26 @@ class Patchmatch:
         for i in range(self.nnf.shape[0]):
             for j in range(self.nnf.shape[1]):
                 y, x = self.nnf[i, j]
-                if (y<0 or x<0 or y>=self.source.shape[0] or x>=self.source.shape[1]) :
+                if (
+                    y < 0
+                    or x < 0
+                    or y >= self.source.shape[0]
+                    or x >= self.source.shape[1]
+                ):
                     print("Coordinates out of bounds")
-                    
+
                 r = int(x * 255.0 / self.source.shape[1])
                 g = int(y * 255.0 / self.source.shape[0])
                 b = 255.0 - max(r, g)
                 temp[i, j] = [b, g, r]
-        
+
         reconstructed = np.zeros(self.target.shape, dtype=np.uint8)
         for y in range(self.target.shape[0]):
             for x in range(self.target.shape[1]):
                 dy, dx = self.nnf[y, x]  # distance in x and y
-                reconstructed[y, x, :] = self.source[dy, dx, :]  # get the pixel from source image
+                reconstructed[y, x, :] = self.source[
+                    dy, dx, :
+                ]  # get the pixel from source image
         return temp, reconstructed
 
 
@@ -179,5 +186,7 @@ if "__main__" == __name__:
     pm.run()
     res, reconstructed = pm.reconstruction()
     print(f"Time taken: {time.time() - start}")
+    cv2.imshow("Result NNF", res)
     cv2.imshow("Final", reconstructed)
     cv2.waitKey(0)
+    cv2.destroyAllWindows()

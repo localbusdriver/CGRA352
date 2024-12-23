@@ -41,10 +41,10 @@ class Patchmatch:
 
         self.pad = patch_size // 2
         self.src_padded = cv2.copyMakeBorder(
-            source, self.pad, self.pad, self.pad, self.pad, cv2.BORDER_REFLECT
+            source, self.pad, self.pad, self.pad, self.pad, cv2.BORDER_CONSTANT
         )  # Add border
         self.targ_padded = cv2.copyMakeBorder(
-            target, self.pad, self.pad, self.pad, self.pad, cv2.BORDER_REFLECT
+            target, self.pad, self.pad, self.pad, self.pad, cv2.BORDER_CONSTANT
         )  # Add border
 
         self.nnf = np.zeros(
@@ -54,11 +54,11 @@ class Patchmatch:
             (target.shape[0], target.shape[1]), np.inf
         )  # distances (costs)
         self.initizalize_nnf()
-        
-    def get_nnf(self)->np.ndarray:
+
+    def get_nnf(self) -> np.ndarray:
         return self.nnf
-    
-    def set_nnf(self, nnf: np.ndarray)->None:
+
+    def set_nnf(self, nnf: np.ndarray) -> None:
         self.nnf = nnf
 
     def set_sourceTarget(self, source: np.ndarray, target: np.ndarray) -> None:
@@ -75,81 +75,81 @@ class Patchmatch:
                 self.nnd[y, x] = self.calculate_dists(
                     np.array([y, x]), np.array([dy, dx])
                 )
-        print(f"\n****Initial NNF:\n{self.nnf}\n\n****self.distance:\n{self.nnd}\n\n")
+        # print(f"\n****Initial NNF:\n{self.nnf}\n\n****self.distance:\n{self.nnd}\n\n")
 
     def calculate_dists(self, source: np.ndarray, target: np.ndarray) -> float:
         """Calculate cost between source and target patches"""
-        y, x = source  # source x and y
-        ty, tx = target  # target x and y
-        src_patch = self.src_padded[
-            y : y + self.patch_size, x : x + self.patch_size
-        ]  # Desired patch
-        targ_patch = self.targ_padded[
-            ty : ty + self.patch_size, tx : tx + self.patch_size
+        src_y, src_x = source[0], source[1]
+        patch_src = self.src_padded[
+            src_y : src_y + self.patch_size,
+            src_x : src_x + self.patch_size,
+            :,
         ]
-        diff = targ_patch - src_patch  # Difference between patches
+
+        targ_y, targ_x = target[0], target[1]
+        patch_targ = self.targ_padded[
+            targ_y : targ_y + self.patch_size,
+            targ_x : targ_x + self.patch_size,
+            :,
+        ]
+        diff = patch_targ - patch_src  # Difference between patches
         num = np.sum(1 - np.int32(np.isnan(diff)))  # Number of valid pixels
         dist = np.sum((np.nan_to_num(diff)) ** 2) / num  # Calculate distance
         return dist
 
     def propogate(self, x: int, y: int, dir: int) -> None:
-        print(f"\tPropagation")
-        best_dy, best_dx = self.nnf[y, x]
+        # print("\tPropagation")
+
+        best_y, best_x = self.nnf[y, x]
         best_dist = self.nnd[y, x]
 
-        nx, ny = x - dir, y  # horizontal propogation so only x is modified
+        nx, ny = x - dir, y
         if 0 <= nx < self.nnf.shape[1]:
-            # if nx between 0 and width of nnf
-            candidate_dy, candidate_dx = self.nnf[ny, nx]  # candidate x and y
-            # candidate_dx += -dir  # candidate x is modified b/c horizontal propogation
+            candidate_y, candidate_x = self.nnf[ny, nx]
+            # candidate_x += dir
 
-            if (
-                0 <= candidate_dx < self.src_padded.shape[1] - self.patch_size
-            ):  # ensure candidate_dx is within bounds
-                dist = self.calculate_dists(
-                    np.array([y, x]), np.array([candidate_dy, candidate_dx])
+            if 0 <= candidate_x < self.targ.shape[1]:
+                candidate_dist = self.calculate_dists(
+                    np.array([candidate_y, candidate_x]), np.array([y, x])
                 )
-                if dist < best_dist:  # if new best dist
-                    best_dx, best_dy = candidate_dx, candidate_dy
-                    best_dist = dist
+                if candidate_dist < best_dist:
+                    best_y, best_x = candidate_y, candidate_x
+                    best_dist = candidate_dist
 
-        nx, ny = x, y - dir  # Vertical propogation so only y is modified
+        nx, ny = x, y - dir
         if 0 <= ny < self.nnf.shape[0]:
-            # if ny between 0 and width of nnf
-            candidate_dy, candidate_dx = self.nnf[ny, nx]
-            # candidate_dy += -dir  # candidate y is modified b/c vertical propogation
+            candidate_y, candidate_x = self.nnf[ny, nx]
+            # candidate_y += dir
 
-            if 0 <= candidate_dy < self.src_padded.shape[0] - self.patch_size:
-                dist = self.calculate_dists(
-                    np.array([y, x]), np.array([candidate_dy, candidate_dx])
+            if 0 <= candidate_y < self.targ.shape[0]:
+                candidate_dist = self.calculate_dists(
+                    np.array([y, x]), np.array([candidate_y, candidate_x])
                 )
-                if dist < best_dist:
-                    best_dy, best_dx = candidate_dy, candidate_dx
-                    best_dist = dist
+                if candidate_dist < best_dist:
+                    best_y, best_x = candidate_y, candidate_x
+                    best_dist = candidate_dist
 
-        self.nnf[y, x] = [best_dy, best_dx]
+        self.nnf[y, x] = [best_y, best_x]
         self.nnd[y, x] = best_dist
 
     def random_search(self, x: int, y: int) -> None:
-        print(f"\tRandom Search")
+        # print("\tRandom Search")
         best_dy, best_dx = self.nnf[y, x]
         best_dist = self.nnd[y, x]
-        radius = max(
-            self.src_padded.shape[0], self.src_padded.shape[1]
-        )  # max of height and width
+        radius = max(self.targ.shape[0], self.targ.shape[1])  # max of height and width
 
         while radius > 1:
             # Search bounds
             min_dy = max(best_dy - radius, 0)
-            max_dy = min(best_dy + radius, self.src_padded.shape[0] - self.patch_size)
+            max_dy = min(best_dy + radius, self.targ.shape[0])
             min_dx = max(best_dx - radius, 0)
-            max_dx = min(best_dx + radius, self.src_padded.shape[1] - self.patch_size)
+            max_dx = min(best_dx + radius, self.targ.shape[1])
 
             candidate_dy = np.random.randint(min_dy, max_dy)  # Random y
             candidate_dx = np.random.randint(min_dx, max_dx)  # Random x
 
             dist = self.calculate_dists(
-                np.array([y, x]), np.array([candidate_dy, candidate_dx])
+                np.array([candidate_dy, candidate_dx]), np.array([y, x])
             )
             if dist < best_dist:
                 best_dx, best_dy = candidate_dx, candidate_dy
@@ -167,9 +167,9 @@ class Patchmatch:
                 for x in range(self.src.shape[1]):
                     # Check all pixels
                     if iter % 2 == 0:  # Forward propogation
-                        self.propogate(x, y, 1)
-                    else:  # Backward propogation
                         self.propogate(x, y, -1)
+                    else:  # Backward propogation
+                        self.propogate(x, y, 1)
                     self.random_search(x, y)
         return self.nnf
 
@@ -237,6 +237,7 @@ def main() -> None:
     ), build_gaussian_pyramid(target_img, k_levels=k_levels)
 
     """ Patchmatch START """
+    start = time.time()
     pm = Patchmatch(source_img, target_img)
 
     # For each level
@@ -249,7 +250,7 @@ def main() -> None:
         target = targ_pyramid[k]
 
         pm.set_sourceTarget(source, target)
-        
+
         pm.run()
 
         kth_res = pm.reconstruct_image()
@@ -259,6 +260,9 @@ def main() -> None:
     set_nnf = cv2.pyrUp(pm.get_nnf())
     pm.set_sourceTarget(source_img, target_img)
     final_reconstructed = pm.reconstruct_images()
+
+    end = time.time()
+    print(f"Time taken: {end - start}")
 
     show_all_results(res_of_levels)
     cv2.imshow("Final Reconstructed Image", final_reconstructed)
